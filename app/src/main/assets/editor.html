@@ -1,56 +1,27 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { margin: 0; padding: 16px; font-family: sans-serif; background-color: #ffffff; color: #333333; }
-        #canvas { display: flex; flex-direction: column; gap: 12px; min-height: 80vh; }
-        .editable-element { padding: 12px; border: 2px dashed #D4AF37; border-radius: 6px; background: #fafafa; outline: none; }
-        h1 { margin: 0; color: #1A0505; font-size: 24px; }
-        p { margin: 0; color: #555555; font-size: 16px; }
-        .btn-elem { display: inline-block; padding: 10px 20px; background: #D4AF37; color: #1A0505; text-align: center; border-radius: 4px; font-weight: bold; }
+        body { margin:0; background:#1A0505; font-family:sans-serif; }
+        #canvas { width:100vw; height:75vh; background:#fff; overflow:auto; position:relative; }
+        .toolbar { height:25vh; display:grid; grid-template-columns:repeat(5, 1fr); overflow-y:auto; }
+        .tool { background:#D4AF37; color:#1A0505; padding:8px; border:1px solid #000; font-size:9px; text-align:center; }
     </style>
 </head>
 <body>
-    <div id="canvas" contenteditable="true">
-        <h1>Welcome to Maha</h1>
-        <p>Tap any element to edit text directly. Use the toolbar below to add components.</p>
-    </div>
-
+    <div id="canvas" contenteditable="true"><h1>Maha Master Project</h1></div>
+    <div class="toolbar" id="master-toolbar"></div>
     <script>
-        function addElement(type) {
-            const canvas = document.getElementById('canvas');
-            const wrapper = document.createElement('div');
-            wrapper.className = 'editable-element';
-            
-            if (type === 'header') {
-                const h = document.createElement('h1');
-                h.innerText = 'New Section Header';
-                wrapper.appendChild(h);
-            } else if (type === 'text') {
-                const p = document.createElement('p');
-                p.innerText = 'Tap here to type your custom paragraph text...';
-                wrapper.appendChild(p);
-            } else if (type === 'button') {
-                const b = document.createElement('div');
-                b.className = 'btn-elem';
-                b.innerText = 'Click Me';
-                wrapper.appendChild(b);
-            }
-            
-            canvas.appendChild(wrapper);
-            window.scrollTo(0, document.body.scrollHeight);
-        }
-
-        function getCanvasHtml() {
-            return document.getElementById('canvas').innerHTML;
-        }
-
-        function setCanvasHtml(html) {
-            if(html && html.trim() !== "") {
-                document.getElementById('canvas').innerHTML = html;
-            }
-        }
+        const allTools = ["Header", "Text", "Image", "Video", "Filter", "Mask", "Crop", "Rotate", "Shadow", "Opacity", "Blur", "Grayscale", "Sepia", "Invert", "Brightness", "Contrast", "Saturation", "Hue", "Scale", "FlipH", "FlipV", "Group", "Ungroup", "Lock", "Unlock", "BringToFront", "SendToBack", "AlignLeft", "AlignCenter", "AlignRight", "AlignTop", "AlignBottom", "DistributeH", "DistributeV", "Duplicate", "Delete", "Undo", "Redo", "SelectAll", "Deselect", "Export", "Save", "Preview", "Publish", "Share", "Print", "Settings", "Help", "Templates", "Assets", "Layers", "Shapes", "Frames", "Stickers", "Icons", "Lines", "Arrows", "Charts", "Tables", "Gradients", "Patterns", "Textures", "Typography", "Colors", "Fonts", "Animations", "Transitions", "Audio", "Backgrounds", "Frames", "Masks", "Smart-Mockups", "Charts", "Smart-Resize", "Bulk-Create", "Styles", "Brand-Kit", "Magic-Write", "Magic-Edit", "Magic-Media", "Magic-Design", "Translate", "Text-to-Image", "Audio-to-Video", "Video-Trim", "Speed-Control", "Loop", "Reverse", "Crop-Video", "Volume", "Fade", "Text-Overlay", "Subtitles", "Watermark", "Replace-Media", "Media-Library", "Cloud-Sync", "Offline-Cache"];
+        const bar = document.getElementById('master-toolbar');
+        allTools.forEach(t => {
+            const b = document.createElement('div');
+            b.className = 'tool';
+            b.innerText = t;
+            b.onclick = () => window.Android.executeTool(t);
+            bar.appendChild(b);
+        });
     </script>
 </body>
 </html>
