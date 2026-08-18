@@ -3,26 +3,53 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
-        body { margin: 0; padding: 0; font-family: sans-serif; background-color: #f0f0f0; }
-        #canvas { display: flex; flex-direction: column; min-height: 100vh; background-color: #ffffff; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .element { padding: 16px; border: 1px dashed transparent; }
-        .element:active { border-color: #D4AF37; }
-        h1 { color: #1A0505; }
+        body { margin: 0; padding: 16px; font-family: sans-serif; background-color: #ffffff; color: #333333; }
+        #canvas { display: flex; flex-direction: column; gap: 12px; min-height: 80vh; }
+        .editable-element { padding: 12px; border: 2px dashed #D4AF37; border-radius: 6px; background: #fafafa; outline: none; }
+        h1 { margin: 0; color: #1A0505; font-size: 24px; }
+        p { margin: 0; color: #555555; font-size: 16px; }
+        .btn-elem { display: inline-block; padding: 10px 20px; background: #D4AF37; color: #1A0505; text-align: center; border-radius: 4px; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div id="canvas">
-        <div class="element"><h1>Welcome to Maha</h1></div>
-        <div class="element"><p>Your grid structure is initialized.</p></div>
+    <div id="canvas" contenteditable="true">
+        <h1>Welcome to Maha</h1>
+        <p>Tap any element to edit text directly. Use the toolbar below to add components.</p>
     </div>
+
     <script>
-        // JS Bridge ready to receive commands from Android
-        function addElement(type, text) {
-            const el = document.createElement('div');
-            el.className = 'element';
-            if(type === 'header') el.innerHTML = '<h1>' + text + '</h1>';
-            else el.innerHTML = '<p>' + text + '</p>';
-            document.getElementById('canvas').appendChild(el);
+        function addElement(type) {
+            const canvas = document.getElementById('canvas');
+            const wrapper = document.createElement('div');
+            wrapper.className = 'editable-element';
+            
+            if (type === 'header') {
+                const h = document.createElement('h1');
+                h.innerText = 'New Section Header';
+                wrapper.appendChild(h);
+            } else if (type === 'text') {
+                const p = document.createElement('p');
+                p.innerText = 'Tap here to type your custom paragraph text...';
+                wrapper.appendChild(p);
+            } else if (type === 'button') {
+                const b = document.createElement('div');
+                b.className = 'btn-elem';
+                b.innerText = 'Click Me';
+                wrapper.appendChild(b);
+            }
+            
+            canvas.appendChild(wrapper);
+            window.scrollTo(0, document.body.scrollHeight);
+        }
+
+        function getCanvasHtml() {
+            return document.getElementById('canvas').innerHTML;
+        }
+
+        function setCanvasHtml(html) {
+            if(html && html.trim() !== "") {
+                document.getElementById('canvas').innerHTML = html;
+            }
         }
     </script>
 </body>
