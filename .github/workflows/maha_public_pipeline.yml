@@ -1,0 +1,46 @@
+name: Maha Zero-Touch QA
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-secure:
+    name: Build, Secure, and Output APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: '8.4'
+
+      - name: Decode Keystore
+        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > app/maha_keystore.jks
+
+      - name: Build Release APK
+        run: gradle assembleRelease
+
+      - name: Sign APK
+        id: sign_app
+        uses: r0adkll/sign-android-release@v1
+        with:
+          releaseDirectory: app/build/outputs/apk/release
+          signingKeyBase64: ${{ secrets.KEYSTORE_BASE64 }}
+          alias: ${{ secrets.KEY_ALIAS }}
+          keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
+
+      - name: Upload Downloadable APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Maha-Signed-Release-APK
+          path: ${{steps.sign_app.outputs.signedReleaseFile}}
