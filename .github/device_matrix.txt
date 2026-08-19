@@ -1,0 +1,4 @@
+model=Pixel6,version=33
+model=SamsungGalaxyS22,version=32
+model=Nexus5X,version=26
+model=PixelTablet,version=34
