@@ -1,7 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="maha_gold">#D4AF37</color>
     <color name="maha_red">#1A0505</color>
-    <color name="maha_surface">#2D1515</color>
+    <color name="maha_gold">#D4AF37</color>
     <color name="white">#FFFFFF</color>
 </resources>
