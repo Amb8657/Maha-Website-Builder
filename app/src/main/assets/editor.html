@@ -1,74 +1,113 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
-        body { margin: 0; display: flex; flex-direction: column; height: 100vh; background: #1A0505; font-family: sans-serif; }
-        #canvas-wrapper { flex-grow: 1; background: #ffffff; padding: 20px; overflow-y: auto; color: #000; }
+        :root {
+            --maha-red: #1A0505;
+            --maha-dark: #0D0202;
+            --maha-gold: #D4AF37;
+            --maha-gold-hover: #F3CA46;
+            --maha-panel: #2D1515;
+            --text-light: #F5F5F5;
+            --canvas-bg: #EAEAEA;
+        }
         
-        /* Canva-Style Nested Toolbar */
-        #toolbar-container { height: 80px; background: #2D1515; display: flex; flex-direction: column; justify-content: center; }
-        .tool-row { display: flex; overflow-x: auto; padding: 0 10px; gap: 10px; align-items: center; scrollbars: none; }
-        .tool-btn { background: #D4AF37; color: #1A0505; border: none; padding: 10px 15px; border-radius: 6px; font-weight: bold; white-space: nowrap; font-size: 14px; }
-        .sub-btn { background: #442222; color: #D4AF37; border: 1px solid #D4AF37; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { margin: 0; display: flex; flex-direction: column; height: 100vh; background: var(--maha-dark); font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; overflow: hidden; }
+        
+        /* The Canvas Workspace */
+        #workspace { flex-grow: 1; background: var(--canvas-bg); overflow-y: auto; display: flex; justify-content: center; padding: 20px; }
+        #canvas { width: 100%; max-width: 800px; min-height: 100%; background: #FFFFFF; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; position: relative; }
+        
+        /* High-End Nested Toolbar System */
+        #toolbar-container { height: 90px; background: var(--maha-panel); border-top: 1px solid rgba(212, 175, 55, 0.2); display: flex; flex-direction: column; justify-content: center; box-shadow: 0 -4px 20px rgba(0,0,0,0.5); z-index: 100; }
+        .tool-row { display: flex; overflow-x: auto; padding: 0 15px; gap: 12px; align-items: center; scrollbar-width: none; height: 100%; }
+        .tool-row::-webkit-scrollbar { display: none; }
+        
+        /* Premium Buttons */
+        .tool-btn { background: var(--maha-gold); color: var(--maha-dark); border: none; padding: 12px 20px; border-radius: 8px; font-weight: 700; font-size: 14px; white-space: nowrap; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(212, 175, 55, 0.2); transition: all 0.2s ease; }
+        .tool-btn:active { transform: scale(0.96); }
+        .sub-btn { background: transparent; color: var(--maha-gold); border: 1px solid var(--maha-gold); box-shadow: none; }
+        .back-btn { background: rgba(255,255,255,0.1); color: var(--text-light); border: none; }
+        
         .hidden { display: none !important; }
         
-        .element-node { padding: 5px; border: 2px dashed transparent; transition: 0.2s; }
-        .element-node:hover { border-color: #D4AF37; cursor: pointer; }
+        /* Canvas Elements Hover/Select States */
+        .maha-element { position: relative; transition: outline 0.2s; outline: 2px solid transparent; }
+        .maha-element:hover { outline: 2px dashed rgba(212, 175, 55, 0.5); cursor: pointer; }
+        .maha-element.selected { outline: 2px solid var(--maha-gold); }
     </style>
 </head>
 <body>
-    <!-- The Live Website Render Area -->
-    <div id="canvas-wrapper"></div>
+
+    <div id="workspace">
+        <div id="canvas">
+            <!-- Dynamic Elements Inject Here -->
+            <div style="text-align:center; padding: 50px; color: #999; font-family: sans-serif;">Start building your project...</div>
+        </div>
+    </div>
     
-    <!-- The 200+ Tool Engine Shell -->
     <div id="toolbar-container">
-        <!-- Main Categories -->
-        <div id="main-tools" class="tool-row">
-            <button class="tool-btn" onclick="openMenu('text-menu')">📝 Text</button>
-            <button class="tool-btn" onclick="openMenu('layout-menu')">📐 Layout</button>
-            <button class="tool-btn" onclick="openMenu('media-menu')">🖼️ Media</button>
-            <button class="tool-btn" onclick="openMenu('fx-menu')">✨ Effects</button>
+        <!-- ROOT MENU -->
+        <div id="menu-root" class="tool-row">
+            <button class="tool-btn" onclick="nav('menu-add')">➕ Add</button>
+            <button class="tool-btn" onclick="nav('menu-edit')">✏️ Edit</button>
+            <button class="tool-btn" onclick="nav('menu-layout')">📐 Layout</button>
+            <button class="tool-btn" onclick="nav('menu-pages')">📄 Pages</button>
         </div>
         
-        <!-- Text Sub-Menu -->
-        <div id="text-menu" class="tool-row hidden">
-            <button class="tool-btn sub-btn" onclick="showMain()">← Back</button>
-            <button class="tool-btn sub-btn" onclick="Android.addNode('HEADER', 'Heading', 'font-size:32px; font-weight:bold; margin-bottom:10px;')">+ Heading</button>
-            <button class="tool-btn sub-btn" onclick="Android.addNode('PARAGRAPH', 'Add your text here...', 'font-size:16px; line-height:1.5;')">+ Paragraph</button>
-            <button class="tool-btn sub-btn" onclick="Android.addNode('BUTTON', 'Click Me', 'padding:12px 24px; background:#D4AF37; color:#1A0505; border:none; border-radius:4px; font-weight:bold;')">+ Button</button>
-        </div>
-        
-        <!-- Layout Sub-Menu -->
-        <div id="layout-menu" class="tool-row hidden">
-            <button class="tool-btn sub-btn" onclick="showMain()">← Back</button>
-            <button class="tool-btn sub-btn" onclick="Android.addNode('SECTION', '', 'padding:40px; background:#f5f5f5; width:100%; min-height:100px;')">+ Section</button>
-            <button class="tool-btn sub-btn" onclick="Android.addNode('DIVIDER', '', 'height:2px; background:#e0e0e0; width:100%; margin:20px 0;')">+ Divider</button>
-            <button class="tool-btn sub-btn" onclick="Android.addNode('SPACER', '', 'height:40px; width:100%;')">+ Spacer</button>
+        <!-- ADD MENU -->
+        <div id="menu-add" class="tool-row hidden">
+            <button class="tool-btn back-btn" onclick="nav('menu-root')">←</button>
+            <button class="tool-btn sub-btn" onclick="nav('menu-add-text')">📝 Text</button>
+            <button class="tool-btn sub-btn" onclick="nav('menu-add-media')">🖼️ Media</button>
+            <button class="tool-btn sub-btn" onclick="nav('menu-add-ui')">🔘 UI</button>
+            <button class="tool-btn sub-btn" onclick="nav('menu-add-section')">🔲 Sections</button>
         </div>
 
-        <!-- Media Sub-Menu -->
-        <div id="media-menu" class="tool-row hidden">
-            <button class="tool-btn sub-btn" onclick="showMain()">← Back</button>
-            <button class="tool-btn sub-btn" onclick="Android.addNode('IMAGE', 'Image Placeholder', 'width:100%; height:200px; background:#cccccc; display:flex; align-items:center; justify-content:center; color:#666;')">+ Image Box</button>
+        <!-- ADD -> TEXT -->
+        <div id="menu-add-text" class="tool-row hidden">
+            <button class="tool-btn back-btn" onclick="nav('menu-add')">←</button>
+            <button class="tool-btn sub-btn" onclick="inject('HEADER')">H1 Heading</button>
+            <button class="tool-btn sub-btn" onclick="inject('SUBHEADER')">H2 Subhead</button>
+            <button class="tool-btn sub-btn" onclick="inject('PARAGRAPH')">Paragraph</button>
         </div>
 
-        <div id="fx-menu" class="tool-row hidden">
-            <button class="tool-btn sub-btn" onclick="showMain()">← Back</button>
-            <button class="tool-btn sub-btn">Add Shadow</button>
-            <button class="tool-btn sub-btn">Corner Radius</button>
+        <!-- ADD -> UI -->
+        <div id="menu-add-ui" class="tool-row hidden">
+            <button class="tool-btn back-btn" onclick="nav('menu-add')">←</button>
+            <button class="tool-btn sub-btn" onclick="inject('BUTTON_PRIMARY')">Primary Button</button>
+            <button class="tool-btn sub-btn" onclick="inject('BUTTON_OUTLINE')">Outline Button</button>
+            <button class="tool-btn sub-btn" onclick="inject('CARD')">Card Block</button>
         </div>
     </div>
 
     <script>
-        // UI Navigation Logic
-        function openMenu(id) { document.getElementById('main-tools').classList.add('hidden'); document.getElementById(id).classList.remove('hidden'); }
-        function showMain() { document.querySelectorAll('.tool-row').forEach(e => e.classList.add('hidden')); document.getElementById('main-tools').classList.remove('hidden'); }
-        
-        // Render Engine called by Android Kotlin
-        function renderCanvas(html) { 
-            document.getElementById('canvas-wrapper').innerHTML = html; 
-            window.scrollTo(0, document.body.scrollHeight); 
+        // Smooth UI Menu Navigation
+        function nav(targetId) {
+            document.querySelectorAll('.tool-row').forEach(el => el.classList.add('hidden'));
+            document.getElementById(targetId).classList.remove('hidden');
+        }
+
+        // Send Command to Android Native Database
+        function inject(type) {
+            if(window.Android) {
+                window.Android.addNode(type);
+            } else {
+                console.log("Native bridge missing. Type:", type);
+            }
+        }
+
+        // Receive Compiled HTML from Android and Render
+        function renderCanvas(html) {
+            const canvas = document.getElementById('canvas');
+            if(html.trim() === "") {
+                canvas.innerHTML = '<div style="text-align:center; padding: 50px; color: #999;">Start building your project...</div>';
+            } else {
+                canvas.innerHTML = html;
+            }
         }
     </script>
 </body>

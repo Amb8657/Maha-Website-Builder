@@ -15,9 +15,8 @@ data class Project(
 data class WebNode(
     @PrimaryKey val id: String = UUID.randomUUID().toString(),
     val projectId: Int,
-    val type: String, // "HEADER", "PARAGRAPH", "BUTTON"
-    val content: String,
-    val cssRules: String
+    val type: String,
+    val timestamp: Long = System.currentTimeMillis()
 )
 
 @Dao
@@ -28,7 +27,10 @@ interface ProjectDao {
     @Insert
     suspend fun insertProject(project: Project): Long
     
-    @Query("SELECT * FROM web_nodes WHERE projectId = :projectId")
+    @Query("SELECT * FROM projects WHERE id = :id LIMIT 1")
+    suspend fun getProject(id: Int): Project?
+    
+    @Query("SELECT * FROM web_nodes WHERE projectId = :projectId ORDER BY timestamp ASC")
     suspend fun getNodesForProject(projectId: Int): List<WebNode>
     
     @Insert(onConflict = OnConflictStrategy.REPLACE)
