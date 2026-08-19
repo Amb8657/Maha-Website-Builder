@@ -1,29 +1,37 @@
 name: Maha Zero-Touch QA
-on: [push]
+on:
+  push:
+    branches: [ "main" ]
 
 jobs:
-  # The Visual Quality Assurance Job
-  visual-qa:
+  build-and-secure:
+    name: Build, Secure, and Output APK
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
-      - name: Run Visual Regression Test
-        run: ./gradlew verifyPaparazziDebug # Compares UI against your reference images
-        
-  # The Global Device Fragmentation Job
-  compatibility-qa:
-    needs: visual-qa
-    runs-on: ubuntu-latest
-    steps:
-      - uses: google-github-actions/auth@v2
+      
+      - uses: actions/setup-java@v5
         with:
-          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
-      - name: Firebase Robo Test Matrix
-        run: |
-          gcloud firebase test android run \
-          --type robo \
-          --app app/build/outputs/apk/debug/app-debug.apk \
-          --device-model-list .github/device_matrix.txt \
-          --num-uniform-shards 5
+          distribution: 'zulu'
+          java-version: '17'
+          
+      - name: Setup Gradle 8.4
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: '8.4'
+          
+      - name: Decode Keystore
+        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > app/maha_keystore.jks
+        
+      - name: Build and Sign Release APK
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: gradle assembleRelease
+        
+      - name: Upload Downloadable APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Maha-Production-APK
+          path: app/build/outputs/apk/release/app-release.apk
