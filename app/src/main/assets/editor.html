@@ -1,27 +1,65 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
-        body { margin:0; background:#1A0505; font-family:sans-serif; }
-        #canvas { width:100vw; height:75vh; background:#fff; overflow:auto; position:relative; }
-        .toolbar { height:25vh; display:grid; grid-template-columns:repeat(5, 1fr); overflow-y:auto; }
-        .tool { background:#D4AF37; color:#1A0505; padding:8px; border:1px solid #000; font-size:9px; text-align:center; }
+        body { margin: 0; background: #1A0505; color: #ffffff; font-family: sans-serif; display: flex; flex-direction: column; height: 100vh; }
+        #canvas { flex-grow: 1; background: #ffffff; color: #000000; padding: 16px; overflow-y: auto; }
+        
+        /* The Canva-Style Nested Toolbar */
+        #toolbar-container { height: 80px; background: #2D1515; display: flex; flex-direction: column; }
+        .tool-row { display: flex; overflow-x: auto; padding: 8px; gap: 8px; transition: 0.3s; }
+        .tool-btn { background: #D4AF37; color: #1A0505; border: none; padding: 8px 16px; border-radius: 4px; font-weight: bold; white-space: nowrap; }
+        .sub-btn { background: #442222; color: #D4AF37; border: 1px solid #D4AF37; }
+        
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
-    <div id="canvas" contenteditable="true"><h1>Maha Master Project</h1></div>
-    <div class="toolbar" id="master-toolbar"></div>
+    <div id="canvas" contenteditable="true">
+        <h2>Maha Nested Editor</h2>
+        <p>Tap the tools below to see nested menus.</p>
+    </div>
+    
+    <div id="toolbar-container">
+        <!-- Level 1: Main Categories -->
+        <div id="main-tools" class="tool-row">
+            <button class="tool-btn" onclick="showSubMenu('text-tools')">📝 Text</button>
+            <button class="tool-btn" onclick="showSubMenu('image-tools')">🖼️ Image</button>
+            <button class="tool-btn" onclick="showSubMenu('layout-tools')">📐 Layout</button>
+        </div>
+        
+        <!-- Level 2: Nested Sub-Tools (Hidden by default) -->
+        <div id="text-tools" class="tool-row hidden">
+            <button class="tool-btn sub-btn" onclick="showMain()">← Back</button>
+            <button class="tool-btn sub-btn">Bold</button>
+            <button class="tool-btn sub-btn">Font Size</button>
+            <button class="tool-btn sub-btn">Color</button>
+        </div>
+        
+        <div id="image-tools" class="tool-row hidden">
+            <button class="tool-btn sub-btn" onclick="showMain()">← Back</button>
+            <button class="tool-btn sub-btn">Crop</button>
+            <button class="tool-btn sub-btn">Filter</button>
+            <button class="tool-btn sub-btn">Remove BG</button>
+        </div>
+    </div>
+
     <script>
-        const allTools = ["Header", "Text", "Image", "Video", "Filter", "Mask", "Crop", "Rotate", "Shadow", "Opacity", "Blur", "Grayscale", "Sepia", "Invert", "Brightness", "Contrast", "Saturation", "Hue", "Scale", "FlipH", "FlipV", "Group", "Ungroup", "Lock", "Unlock", "BringToFront", "SendToBack", "AlignLeft", "AlignCenter", "AlignRight", "AlignTop", "AlignBottom", "DistributeH", "DistributeV", "Duplicate", "Delete", "Undo", "Redo", "SelectAll", "Deselect", "Export", "Save", "Preview", "Publish", "Share", "Print", "Settings", "Help", "Templates", "Assets", "Layers", "Shapes", "Frames", "Stickers", "Icons", "Lines", "Arrows", "Charts", "Tables", "Gradients", "Patterns", "Textures", "Typography", "Colors", "Fonts", "Animations", "Transitions", "Audio", "Backgrounds", "Frames", "Masks", "Smart-Mockups", "Charts", "Smart-Resize", "Bulk-Create", "Styles", "Brand-Kit", "Magic-Write", "Magic-Edit", "Magic-Media", "Magic-Design", "Translate", "Text-to-Image", "Audio-to-Video", "Video-Trim", "Speed-Control", "Loop", "Reverse", "Crop-Video", "Volume", "Fade", "Text-Overlay", "Subtitles", "Watermark", "Replace-Media", "Media-Library", "Cloud-Sync", "Offline-Cache"];
-        const bar = document.getElementById('master-toolbar');
-        allTools.forEach(t => {
-            const b = document.createElement('div');
-            b.className = 'tool';
-            b.innerText = t;
-            b.onclick = () => window.Android.executeTool(t);
-            bar.appendChild(b);
-        });
+        function showSubMenu(menuId) {
+            // Hide main menu
+            document.getElementById('main-tools').classList.add('hidden');
+            // Show the specific nested tools
+            document.getElementById(menuId).classList.remove('hidden');
+        }
+
+        function showMain() {
+            // Hide all sub-menus
+            document.getElementById('text-tools').classList.add('hidden');
+            document.getElementById('image-tools').classList.add('hidden');
+            // Show main menu
+            document.getElementById('main-tools').classList.remove('hidden');
+        }
     </script>
 </body>
 </html>
