@@ -15,7 +15,6 @@ android {
         versionName = "1.0"
     }
     
-    // THE FIX: Explicitly tell Java to use version 17 to match Kotlin
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -29,10 +28,13 @@ android {
     }
 }
 dependencies {
+    // --- APP UI DEPENDENCIES ---
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.11.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4") // <-- The missing structural dependency
     
+    // --- IN-HOUSE QA DEPENDENCIES ---
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.robolectric:robolectric:4.11.1")
     testImplementation("androidx.test.ext:junit:1.1.5")
