@@ -1,18 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="#1A0505">
+    
+    <!-- Top Navigation -->
     <LinearLayout android:layout_width="match_parent" android:layout_height="60dp" android:background="#2D1515" android:gravity="center_vertical" android:padding="16dp">
-        <TextView android:id="@+id/tvProjectName" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Editor" android:textColor="#D4AF37" android:textSize="20sp" android:textStyle="bold" />
+        <TextView android:id="@+id/tvProjectName" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Maha Editor" android:textColor="#D4AF37" android:textSize="20sp" android:textStyle="bold" />
         <Button android:id="@+id/btnExport" android:layout_width="wrap_content" android:layout_height="35dp" android:backgroundTint="#D4AF37" android:textColor="#1A0505" android:text="EXPORT" android:textSize="12sp" />
     </LinearLayout>
-    <!-- The Actual Canvas Renderer -->
-    <WebView android:id="@+id/webView" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" />
-    <!-- Native Android Native Toolbar for Tools -->
-    <HorizontalScrollView android:layout_width="match_parent" android:layout_height="70dp" android:background="#2D1515" android:scrollbars="none">
-        <LinearLayout android:layout_width="wrap_content" android:layout_height="match_parent" android:gravity="center_vertical" android:paddingHorizontal="16dp">
-            <Button android:id="@+id/btnAddHeader" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="+ Header" android:backgroundTint="#D4AF37" android:textColor="#1A0505" android:layout_marginEnd="8dp"/>
-            <Button android:id="@+id/btnAddText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="+ Paragraph" android:backgroundTint="#D4AF37" android:textColor="#1A0505" android:layout_marginEnd="8dp"/>
-            <Button android:id="@+id/btnAddButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="+ Button" android:backgroundTint="#D4AF37" android:textColor="#1A0505"/>
-        </LinearLayout>
-    </HorizontalScrollView>
+    
+    <!-- The Full Engine View -->
+    <WebView android:id="@+id/webView" android:layout_width="match_parent" android:layout_height="match_parent" />
 </LinearLayout>

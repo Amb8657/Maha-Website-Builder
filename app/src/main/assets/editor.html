@@ -4,76 +4,71 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
         body { margin: 0; display: flex; flex-direction: column; height: 100vh; background: #1A0505; font-family: sans-serif; }
-        #canvas { flex-grow: 1; background: #ffffff; color: #000; padding: 20px; overflow-y: auto; }
+        #canvas-wrapper { flex-grow: 1; background: #ffffff; padding: 20px; overflow-y: auto; color: #000; }
         
-        /* Floating Nested Toolbar */
-        #toolbar-container { height: 70px; background: #2D1515; display: flex; flex-direction: column; justify-content: center; }
-        .tool-row { display: flex; overflow-x: auto; padding: 0 10px; gap: 10px; align-items: center; }
+        /* Canva-Style Nested Toolbar */
+        #toolbar-container { height: 80px; background: #2D1515; display: flex; flex-direction: column; justify-content: center; }
+        .tool-row { display: flex; overflow-x: auto; padding: 0 10px; gap: 10px; align-items: center; scrollbars: none; }
         .tool-btn { background: #D4AF37; color: #1A0505; border: none; padding: 10px 15px; border-radius: 6px; font-weight: bold; white-space: nowrap; font-size: 14px; }
         .sub-btn { background: #442222; color: #D4AF37; border: 1px solid #D4AF37; }
         .hidden { display: none !important; }
         
-        .element { padding: 10px; border: 2px dashed transparent; }
-        .element:hover { border-color: #ccc; }
+        .element-node { padding: 5px; border: 2px dashed transparent; transition: 0.2s; }
+        .element-node:hover { border-color: #D4AF37; cursor: pointer; }
     </style>
 </head>
 <body>
-    <div id="canvas" contenteditable="true">
-        <h2>Maha Project</h2>
-        <p>Start designing your layout here...</p>
-    </div>
+    <!-- The Live Website Render Area -->
+    <div id="canvas-wrapper"></div>
     
+    <!-- The 200+ Tool Engine Shell -->
     <div id="toolbar-container">
         <!-- Main Categories -->
         <div id="main-tools" class="tool-row">
             <button class="tool-btn" onclick="openMenu('text-menu')">📝 Text</button>
-            <button class="tool-btn" onclick="openMenu('image-menu')">🖼️ Image</button>
             <button class="tool-btn" onclick="openMenu('layout-menu')">📐 Layout</button>
+            <button class="tool-btn" onclick="openMenu('media-menu')">🖼️ Media</button>
             <button class="tool-btn" onclick="openMenu('fx-menu')">✨ Effects</button>
         </div>
         
-        <!-- Nested Menus -->
+        <!-- Text Sub-Menu -->
         <div id="text-menu" class="tool-row hidden">
             <button class="tool-btn sub-btn" onclick="showMain()">← Back</button>
-            <button class="tool-btn sub-btn" onclick="inject('<h1 class=\'element\'>New Header</h1>')">+ Header</button>
-            <button class="tool-btn sub-btn" onclick="inject('<p class=\'element\'>Paragraph text...</p>')">+ Paragraph</button>
-            <button class="tool-btn sub-btn">Bold</button>
+            <button class="tool-btn sub-btn" onclick="Android.addNode('HEADER', 'Heading', 'font-size:32px; font-weight:bold; margin-bottom:10px;')">+ Heading</button>
+            <button class="tool-btn sub-btn" onclick="Android.addNode('PARAGRAPH', 'Add your text here...', 'font-size:16px; line-height:1.5;')">+ Paragraph</button>
+            <button class="tool-btn sub-btn" onclick="Android.addNode('BUTTON', 'Click Me', 'padding:12px 24px; background:#D4AF37; color:#1A0505; border:none; border-radius:4px; font-weight:bold;')">+ Button</button>
         </div>
         
-        <div id="image-menu" class="tool-row hidden">
-            <button class="tool-btn sub-btn" onclick="showMain()">← Back</button>
-            <button class="tool-btn sub-btn">Upload</button>
-            <button class="tool-btn sub-btn">Crop</button>
-            <button class="tool-btn sub-btn">Filters</button>
-        </div>
-        
+        <!-- Layout Sub-Menu -->
         <div id="layout-menu" class="tool-row hidden">
             <button class="tool-btn sub-btn" onclick="showMain()">← Back</button>
-            <button class="tool-btn sub-btn">Nudge ↑</button>
-            <button class="tool-btn sub-btn">Nudge ↓</button>
-            <button class="tool-btn sub-btn">Grid</button>
+            <button class="tool-btn sub-btn" onclick="Android.addNode('SECTION', '', 'padding:40px; background:#f5f5f5; width:100%; min-height:100px;')">+ Section</button>
+            <button class="tool-btn sub-btn" onclick="Android.addNode('DIVIDER', '', 'height:2px; background:#e0e0e0; width:100%; margin:20px 0;')">+ Divider</button>
+            <button class="tool-btn sub-btn" onclick="Android.addNode('SPACER', '', 'height:40px; width:100%;')">+ Spacer</button>
+        </div>
+
+        <!-- Media Sub-Menu -->
+        <div id="media-menu" class="tool-row hidden">
+            <button class="tool-btn sub-btn" onclick="showMain()">← Back</button>
+            <button class="tool-btn sub-btn" onclick="Android.addNode('IMAGE', 'Image Placeholder', 'width:100%; height:200px; background:#cccccc; display:flex; align-items:center; justify-content:center; color:#666;')">+ Image Box</button>
         </div>
 
         <div id="fx-menu" class="tool-row hidden">
             <button class="tool-btn sub-btn" onclick="showMain()">← Back</button>
-            <button class="tool-btn sub-btn">Shadow</button>
-            <button class="tool-btn sub-btn">Opacity</button>
-            <button class="tool-btn sub-btn">Blur</button>
+            <button class="tool-btn sub-btn">Add Shadow</button>
+            <button class="tool-btn sub-btn">Corner Radius</button>
         </div>
     </div>
 
     <script>
-        function openMenu(menuId) {
-            document.getElementById('main-tools').classList.add('hidden');
-            document.getElementById(menuId).classList.remove('hidden');
-        }
-        function showMain() {
-            document.querySelectorAll('.tool-row').forEach(el => el.classList.add('hidden'));
-            document.getElementById('main-tools').classList.remove('hidden');
-        }
-        function inject(html) {
-            document.getElementById('canvas').innerHTML += html;
-            window.scrollTo(0, document.body.scrollHeight);
+        // UI Navigation Logic
+        function openMenu(id) { document.getElementById('main-tools').classList.add('hidden'); document.getElementById(id).classList.remove('hidden'); }
+        function showMain() { document.querySelectorAll('.tool-row').forEach(e => e.classList.add('hidden')); document.getElementById('main-tools').classList.remove('hidden'); }
+        
+        // Render Engine called by Android Kotlin
+        function renderCanvas(html) { 
+            document.getElementById('canvas-wrapper').innerHTML = html; 
+            window.scrollTo(0, document.body.scrollHeight); 
         }
     </script>
 </body>
