@@ -4,85 +4,134 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
-        :root { --maha-red: #1A0505; --maha-gold: #D4AF37; --bg-panel: #2D1515; }
-        body { margin: 0; display: flex; flex-direction: column; height: 100vh; background: #EAEAEA; font-family: sans-serif; overflow: hidden; }
+        :root { --maha-red: #3A0A0A; --maha-dark: #191B1F; --maha-gold: #D4AF37; --canvas-bg: #2B0505; }
+        * { box-sizing: border-box; user-select: none; }
+        body { margin: 0; height: 100vh; background: var(--maha-dark); font-family: sans-serif; display: flex; flex-direction: column; overflow: hidden; }
         
-        /* The Canvas */
-        #workspace { flex-grow: 1; overflow-y: auto; padding: 20px; position: relative; }
-        #canvas { width: 100%; min-height: 800px; background: #FFF; box-shadow: 0 4px 12px rgba(0,0,0,0.1); position: relative; }
+        /* Top Navigation Bar */
+        .top-nav { height: 60px; background: var(--maha-red); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); z-index: 100; }
+        .logo-text { color: var(--maha-gold); font-size: 18px; font-weight: bold; display: flex; align-items: center; gap: 10px; }
+        .nav-btn { background: transparent; color: var(--maha-gold); border: 1px solid var(--maha-gold); padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: bold; }
         
-        /* Contextual Floating Toolbar (Appears when element is tapped) */
-        #context-bar { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); background: #FFF; border-radius: 8px; padding: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); display: none; gap: 10px; z-index: 200; }
-        .ctx-btn { background: #f0f0f0; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; }
+        /* Main Layout Split */
+        .main-area { display: flex; flex-grow: 1; position: relative; overflow: hidden; }
         
-        /* Canva-Style Bottom Drawer */
-        #bottom-drawer { position: absolute; bottom: 0; left: 0; width: 100%; height: 250px; background: var(--bg-panel); border-top-left-radius: 20px; border-top-right-radius: 20px; box-shadow: 0 -5px 25px rgba(0,0,0,0.3); transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; z-index: 100; }
-        #bottom-drawer.open { transform: translateY(0); }
+        /* Center Visual Editor Canvas */
+        #workspace { flex-grow: 1; background: var(--canvas-bg); position: relative; overflow-y: auto; padding: 20px; }
+        /* Grid Lines from the image */
+        #canvas-frame { min-height: 800px; width: 100%; position: relative; background-image: linear-gradient(rgba(212,175,55,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(212,175,55,0.05) 1px, transparent 1px); background-size: 20px 20px; outline: 1px solid rgba(212,175,55,0.2); }
         
-        /* Drawer Drag Handle */
-        .drawer-handle { width: 40px; height: 5px; background: rgba(255,255,255,0.3); border-radius: 3px; margin: 12px auto; }
-        
-        /* Drawer Categories (Scrollable Horizontal) */
-        .category-tabs { display: flex; overflow-x: auto; padding: 0 15px 10px; gap: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); scrollbar-width: none; }
-        .tab { color: #A0A0A0; font-weight: bold; font-size: 14px; padding-bottom: 8px; }
-        .tab.active { color: var(--maha-gold); border-bottom: 2px solid var(--maha-gold); }
-        
-        /* Drawer Content Grid */
-        .drawer-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 20px; overflow-y: auto; }
-        .tool-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(212,175,55,0.2); border-radius: 12px; padding: 15px; text-align: center; color: var(--maha-gold); font-size: 12px; font-weight: bold; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-        .tool-card:active { background: rgba(212,175,55,0.1); }
-        
-        /* FAB to open Drawer */
-        #fab-add { position: absolute; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 30px; background: var(--maha-gold); color: var(--maha-red); font-size: 30px; border: none; box-shadow: 0 4px 15px rgba(212,175,55,0.4); z-index: 50; display: flex; justify-content: center; align-items: center; }
-        
-        .maha-element { position: relative; border: 2px solid transparent; transition: 0.2s; padding: 4px; }
-        .maha-element:hover { border: 2px dashed rgba(212,175,55,0.5); cursor: pointer; }
-        .maha-element.selected { border: 2px solid var(--maha-gold); }
+        /* The Exact Floating Gold Context Toolbar from the image */
+        .gold-toolbar { position: absolute; background: linear-gradient(to bottom, #EAD07C, #D4AF37); padding: 8px; border-radius: 6px; display: none; gap: 8px; box-shadow: 0 6px 15px rgba(0,0,0,0.5); z-index: 200; align-items: center; transform: translateY(-50px); }
+        .gold-toolbar.active { display: flex; }
+        .gt-icon { color: #1A0505; font-weight: 900; font-size: 16px; cursor: pointer; padding: 4px 8px; }
+        .gt-icon:hover { background: rgba(0,0,0,0.1); border-radius: 4px; }
+        .gt-divider { width: 1px; height: 20px; background: #1A0505; opacity: 0.3; }
+
+        /* Right Layers Panel */
+        #layers-panel { width: 280px; background: #1E2024; border-left: 1px solid #333; display: flex; flex-direction: column; position: absolute; right: 0; top: 0; bottom: 0; transform: translateX(100%); transition: transform 0.3s; z-index: 50; }
+        #layers-panel.open { transform: translateX(0); }
+        .lp-header { padding: 15px; color: #FFF; font-size: 14px; font-weight: bold; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
+        .lp-search { background: #2A2D33; border: none; padding: 8px 12px; border-radius: 4px; color: #FFF; width: 90%; margin: 10px auto; display: block; font-size: 12px; }
+        .lp-tree { flex-grow: 1; overflow-y: auto; padding: 10px; color: #A0A0A0; font-size: 12px; }
+        .lp-item { padding: 8px; display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .lp-item:hover { background: rgba(212,175,55,0.1); color: var(--maha-gold); }
+
+        /* Elements on Canvas */
+        .maha-element { padding: 10px; margin-bottom: 15px; border: 1px dashed rgba(212,175,55,0.3); color: #FFF; }
+        .maha-element.selected { border: 1px solid var(--maha-gold); background: rgba(212,175,55,0.05); }
+
+        /* Bottom Responsive Toggle */
+        .responsive-toggle { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: #1E2024; padding: 10px 20px; border-radius: 12px; display: flex; gap: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); border: 1px solid rgba(212,175,55,0.2); }
+        .rt-icon { color: #888; font-size: 18px; display: flex; flex-direction: column; align-items: center; font-size: 10px; gap: 4px; }
+        .rt-icon.active { color: var(--maha-gold); }
     </style>
 </head>
 <body>
-    <div id="context-bar">
-        <button class="ctx-btn">A- (Size)</button>
-        <button class="ctx-btn">A+ (Size)</button>
-        <button class="ctx-btn" style="color: red;">Delete</button>
+    <div class="top-nav">
+        <div class="logo-text"><span style="font-size:24px;">Ⓜ️</span> Maha Editor</div>
+        <div style="display:flex; gap:10px;">
+            <button class="nav-btn" onclick="toggleLayers()">Layers</button>
+            <button class="nav-btn" onclick="inject('HEADER')" style="background:var(--maha-gold); color:#1A0505;">+ Add</button>
+        </div>
     </div>
 
-    <div id="workspace" onclick="closeDrawer()">
-        <div id="canvas">
-            <div style="text-align:center; padding: 50px; color: #999;">Canvas is ready.</div>
+    <div class="main-area">
+        <div id="workspace">
+            <div id="canvas-frame">
+                <!-- Floating Toolbar -->
+                <div id="active-toolbar" class="gold-toolbar">
+                    <span class="gt-icon">A</span>
+                    <span class="gt-icon" style="font-style:italic">I</span>
+                    <span class="gt-icon" style="text-decoration:underline">U</span>
+                    <div class="gt-divider"></div>
+                    <span class="gt-icon">≡</span>
+                    <div class="gt-divider"></div>
+                    <span class="gt-icon">📄</span>
+                </div>
+                
+                <div style="padding:40px; color:rgba(212,175,55,0.5); text-align:center; font-size:14px; letter-spacing:2px;">
+                    CANVAS READY. TAP + ADD TO START.
+                </div>
+            </div>
+        </div>
+
+        <!-- Layers Panel Match -->
+        <div id="layers-panel">
+            <div class="lp-header">LAYERS PANEL <span onclick="toggleLayers()" style="cursor:pointer; color:#888;">✕</span></div>
+            <input type="text" class="lp-search" placeholder="🔍 Search layers...">
+            <div class="lp-tree">
+                <div class="lp-item">📚 All</div>
+                <div class="lp-item" style="padding-left:20px;">📦 Elements</div>
+                <div class="lp-item" style="padding-left:20px; color:#D4AF37;">📦 Selected Element</div>
+                <div class="lp-item" style="padding-left:40px;">▤ Content Box</div>
+                <div class="lp-item" style="padding-left:40px;">T Heading Text</div>
+            </div>
         </div>
     </div>
-    
-    <button id="fab-add" onclick="event.stopPropagation(); document.getElementById('bottom-drawer').classList.add('open');">+</button>
-    
-    <div id="bottom-drawer" onclick="event.stopPropagation();">
-        <div class="drawer-handle"></div>
-        <div class="category-tabs">
-            <div class="tab active">Design</div>
-            <div class="tab">Elements</div>
-            <div class="tab">Text</div>
-            <div class="tab">Uploads</div>
-            <div class="tab">Draw</div>
-        </div>
-        <div class="drawer-grid">
-            <div class="tool-card" onclick="inject('HEADER')"><span>H1</span> Heading</div>
-            <div class="tool-card" onclick="inject('PARAGRAPH')"><span>¶</span> Text Block</div>
-            <div class="tool-card" onclick="inject('BUTTON_PRIMARY')"><span>🔘</span> Button</div>
-            <div class="tool-card" onclick="inject('IMAGE')"><span>🖼️</span> Image</div>
-            <div class="tool-card" onclick="inject('CARD')"><span>🔲</span> Card</div>
-            <div class="tool-card" onclick="inject('GRID')"><span>📐</span> Layout Grid</div>
-        </div>
+
+    <div class="responsive-toggle">
+        <div class="rt-icon active">📱<span>Mobile</span></div>
+        <div class="rt-icon">💊<span>Tablet</span></div>
+        <div class="rt-icon">💻<span>Desktop</span></div>
     </div>
 
     <script>
-        function closeDrawer() { document.getElementById('bottom-drawer').classList.remove('open'); }
+        function toggleLayers() { document.getElementById('layers-panel').classList.toggle('open'); }
+        
         function inject(type) {
-            closeDrawer();
             if(window.Android) window.Android.addNode(type);
         }
+
+        // Simulate Canvas selection activating the Gold Toolbar from the image
         function renderCanvas(html) {
-            if(html.trim() !== "") document.getElementById('canvas').innerHTML = html;
+            const frame = document.getElementById('canvas-frame');
+            // Keep the toolbar HTML intact, inject elements below it
+            const toolbarHtml = frame.querySelector('.gold-toolbar').outerHTML;
+            if(html.trim() !== "") {
+                frame.innerHTML = toolbarHtml + html;
+                
+                // Add click listeners to show the floating toolbar exactly like the image
+                document.querySelectorAll('.maha-element').forEach(el => {
+                    el.addEventListener('click', (e) => {
+                        document.querySelectorAll('.maha-element').forEach(n => n.classList.remove('selected'));
+                        el.classList.add('selected');
+                        
+                        const tb = document.getElementById('active-toolbar');
+                        tb.classList.add('active');
+                        tb.style.top = (el.offsetTop) + 'px';
+                        tb.style.left = (el.offsetLeft + 10) + 'px';
+                        e.stopPropagation();
+                    });
+                });
+            }
         }
+        
+        // Click outside closes toolbar
+        document.getElementById('workspace').addEventListener('click', () => {
+            document.querySelectorAll('.maha-element').forEach(n => n.classList.remove('selected'));
+            document.getElementById('active-toolbar').classList.remove('active');
+        });
     </script>
 </body>
 </html>
